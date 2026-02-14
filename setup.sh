@@ -152,6 +152,12 @@ fi
 kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
 kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme WhiteSur-dark
 
-echo "WhiteSur theme configured. Log out and log back in."
+echo "WhiteSur theme configured."
+
+echo "==================================================="
+echo "POST INSTALL PRECAUSIONS"
+echo "please logout and login and set proper height for panel"
+echo "and adjust themes in settings manually if needed"
+echo "==================================================="
 
 echo "Done. Reboot recommended."
