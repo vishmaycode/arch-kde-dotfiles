@@ -29,6 +29,10 @@ firefox
 # Dev / Terminal
 git
 lazygit
+ripgrep
+fd
+fzf
+sshpass
 wget
 htop
 fastfetch
@@ -38,6 +42,7 @@ neovim
 lazygit
 zsh
 qemu-full
+ttf-jetbrains-mono-nerd
 
 # Creative / Office
 gimp
