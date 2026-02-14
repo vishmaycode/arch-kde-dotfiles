@@ -123,33 +123,34 @@ echo "Installing user dotfiles..."
 rsync -a dotfiles/home/ "$HOME/"
 
 # -------------------------------------------------
-# KDE APPLY SETTINGS PROPERLY
+# KDE APPLY WHITESUR THEME
 # -------------------------------------------------
 
-echo "Applying KDE theme and settings..."
+echo "Applying WhiteSur KDE theme..."
 
-# Ensure correct ownership (important if script ever runs as root)
+# Fix ownership just in case
 chown -R "$USER:$USER" "$HOME"
 
-# Apply Global Theme (replace with your actual macOS theme ID)
+# Apply Global Theme
 if command -v lookandfeeltool &> /dev/null; then
-    lookandfeeltool -a org.kde.breezedark.desktop || true
+    lookandfeeltool -a com.github.vinceliuice.WhiteSur || true
 fi
 
-# Apply Color Scheme (replace with your scheme name)
+# Apply Color Scheme (WhiteSur Dark)
 if command -v plasma-apply-colorscheme &> /dev/null; then
-    plasma-apply-colorscheme BreezeDark || true
+    plasma-apply-colorscheme WhiteSurDark || true
 fi
 
-# Apply Cursor Theme (replace with yours)
-if command -v plasma-apply-cursortheme &> /dev/null; then
-    plasma-apply-cursortheme Breeze || true
-fi
+# Apply Icon Theme
+kwriteconfig6 --file kdeglobals --group Icons --key Theme WhiteSur-dark
 
-# Apply Icon Theme (replace with yours)
-kwriteconfig6 --file kdeglobals --group Icons --key Theme breeze
+# Apply Cursor Theme
+kwriteconfig6 --file kcminputrc --group Mouse --key cursorTheme WhiteSur-cursors
 
-# Restart Plasma cleanly (only if session active)
+# Apply Window Decoration
+kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme WhiteSur-dark
+
+# Restart Plasma cleanly
 if pgrep plasmashell > /dev/null; then
     kquitapp6 plasmashell
     sleep 2
