@@ -7,5 +7,3 @@ visual-studio-code-bin
 whitesur-kde-theme
 whitesur-icon-theme-git
 whitesur-cursor-theme-git
-kvantum-theme-whitesur-git
-sddm-theme-whitesur
