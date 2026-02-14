@@ -15,6 +15,15 @@ fi
 echo "Installing AUR packages..."
 paru -S --needed --noconfirm - < <(grep -v '^#' aur-packages.txt | sed '/^$/d')
 
+if ! command -v google-chrome-stable &> /dev/null; then
+    git clone https://aur.archlinux.org/google-chrome.git
+    cd google-chrome
+    makepkg -si --noconfirm
+    cd ..
+else
+    echo "google-chrome already installed, skipping."
+fi
+
 echo "Enabling services..."
 sudo systemctl enable sddm
 sudo systemctl enable NetworkManager
