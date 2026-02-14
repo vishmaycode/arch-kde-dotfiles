@@ -131,4 +131,55 @@ fi
 
 echo "Shell configuration complete."
 
+# -------------------------------------------------
+# NEOVIM CONFIG (LazyVim)
+# -------------------------------------------------
+echo "Setting up Neovim configuration..."
+
+NVIM_CONFIG_DIR="$HOME/.config/nvim"
+
+if [ -d "$NVIM_CONFIG_DIR" ]; then
+    echo "Neovim config already exists. Skipping clone."
+else
+    echo "Cloning Neovim LazyVim config..."
+    git clone https://github.com/vishmaycode/neovim-lazyvim.git "$NVIM_CONFIG_DIR"
+fi
+
+# -------------------------------------------------
+# TMUX CONFIG
+# -------------------------------------------------
+echo "Setting up tmux configuration..."
+
+TMUX_CONF="$HOME/.tmux.conf"
+
+if [ -f "$TMUX_CONF" ]; then
+    echo "tmux config already exists. Skipping."
+else
+    echo "Downloading tmux config..."
+    curl -fsSL https://raw.githubusercontent.com/vishmaycode/tmux-config/main/.tmux.conf -o "$TMUX_CONF"
+fi
+
+# -------------------------------------------------
+# PERSONAL LOCAL BINARIES
+# -------------------------------------------------
+echo "Setting up personal local binaries..."
+
+LOCAL_BIN_DIR="$HOME/.local/bin"
+
+mkdir -p "$LOCAL_BIN_DIR"
+
+if [ -d "$LOCAL_BIN_DIR/.git" ]; then
+    echo "local-bin repo already exists. Pulling latest changes..."
+    git -C "$LOCAL_BIN_DIR" pull --ff-only || true
+else
+    echo "Cloning local-bin repository..."
+    rm -rf "$LOCAL_BIN_DIR"
+    git clone https://github.com/vishmaycode/local-bin.git "$LOCAL_BIN_DIR"
+fi
+
+# Ensure PATH contains ~/.local/bin (for current session)
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
 echo "Done. Reboot recommended."
