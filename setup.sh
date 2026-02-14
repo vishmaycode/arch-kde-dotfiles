@@ -2,7 +2,7 @@
 set -e
 
 echo "Installing official packages..."
-sudo pacman -S --needed - < <(grep -v '^#' packages.txt | sed '/^$/d')
+sudo pacman -S --needed --noconfirm - < <(grep -v '^#' packages.txt | sed '/^$/d')
 
 echo "Installing paru (AUR helper)..."
 if ! command -v paru &> /dev/null; then
@@ -13,7 +13,7 @@ if ! command -v paru &> /dev/null; then
 fi
 
 echo "Installing AUR packages..."
-paru -S --needed - < <(grep -v '^#' aur-packages.txt | sed '/^$/d')
+paru -S --needed --noconfirm - < <(grep -v '^#' aur-packages.txt | sed '/^$/d')
 
 echo "Enabling services..."
 sudo systemctl enable sddm
