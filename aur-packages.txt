@@ -3,3 +3,4 @@ zen-browser-bin
 cursor-bin
 pdfarranger
 brave-bin
+visual-studio-code-bin
