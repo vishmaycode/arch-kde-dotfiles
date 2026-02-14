@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+# Copyright 2025 Vishmay Karbotkar
+# Licensed under the Apache License, Version 2.0. See LICENSE file in the repository root.
+# https://vishcodes.com
+# https://github.com/vishmaycode/local-bin
+# Inspired by tmux-sessionizer by ThePrimeagen[](https://github.com/ThePrimeagen/tmux-sessionizer).
+# Core ideas for session selection and switching; extended with .tmux-layout support.
+# Original code reimplemented—no direct copies.
+
+# Banner to display in fzf
+BANNER_HEADER=$'
+██╗   ██╗██╗███████╗██╗  ██╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗
+██║   ██║██║██╔════╝██║  ██║██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝
+██║   ██║██║███████╗███████║██║     ██║   ██║██║  ██║█████╗  ███████╗
+╚██╗ ██╔╝██║╚════██║██╔══██║██║     ██║   ██║██║  ██║██╔══╝  ╚════██║
+ ╚████╔╝ ██║███████║██║  ██║╚██████╗╚██████╔╝██████╔╝███████╗███████║
+  ╚═══╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚══════╝
+
+VishCodes - https://vishcodes.com
+GitHub    - https://github.com/vishmaycode/local-bin
+'
+
+set -euo pipefail
+
+switch_to() {
+    if [[ -z ${TMUX-} ]]; then
+        tmux attach-session -t "$1"
+    else
+        tmux switch-client -t "$1"
+    fi
+}
+
+has_session() {
+    tmux has-session -t "$1" 2>/dev/null
+}
+
+hydrate() {
+    local session_name=$1
+    local project_dir=$2
+
+    # Optional per-project shell bootstrap (runs in the pane's shell)
+    if [[ -f "$project_dir/.tmux-sessionizer" ]]; then
+        tmux send-keys -t "$session_name:" "source '$project_dir/.tmux-sessionizer'" C-m
+    elif [[ -f "$HOME/.tmux-sessionizer" ]]; then
+        tmux send-keys -t "$session_name:" "source '$HOME/.tmux-sessionizer'" C-m
+    fi
+
+    # Per-project layout (bash script that calls tmux with explicit targets)
+    if [[ -f "$project_dir/.tmux-layout" ]]; then
+        TMUX_SESSION_NAME="$session_name" TMUX_PROJECT_DIR="$project_dir" bash "$project_dir/.tmux-layout"
+    fi
+}
+
+# Pick project dir
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    selected=$(find ~/Projects ~/Work -mindepth 1 -maxdepth 1 -type d | fzf --header="$BANNER_HEADER" )
+fi
+[[ -z ${selected-} ]] && exit 0
+
+selected_name=$(basename "$selected" | tr . _)
+
+tmux_running=$(pgrep tmux || true)
+
+if [[ -z ${TMUX-} ]] && [[ -z $tmux_running ]]; then
+    # Start detached, hydrate, then attach
+    tmux new-session -ds "$selected_name" -c "$selected"
+    hydrate "$selected_name" "$selected"
+    tmux attach-session -t "$selected_name"
+    exit 0
+fi
+
+if ! has_session "$selected_name"; then
+    tmux new-session -ds "$selected_name" -c "$selected"
+    hydrate "$selected_name" "$selected"
+fi
+
+switch_to "$selected_name"
+

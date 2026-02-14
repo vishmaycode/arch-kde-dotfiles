@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+s="${TMUX_SESSION_NAME:?missing}"
+
+# Skip if windows already exist (>1) to avoid duplicating
+if [ "$(tmux list-windows -t "$s:" | wc -l)" -gt 1 ]; then
+  exit 0
+fi
+
+# Rename the first window and send a command
+tmux rename-window -t "$s:1" team1
+tmux send-keys -t "$s:team1" 'ssh-manager' C-m
+
+# Create other team windows
+tmux new-window -t "$s:" -n team2
+tmux send-keys -t "$s:team2" 'ssh-manager' C-m
+
+tmux new-window -t "$s:" -n team3
+tmux send-keys -t "$s:team3" 'ssh-manager' C-m
+
+tmux new-window -t "$s:" -n team4
+tmux send-keys -t "$s:team4" 'ssh-manager' C-m
+
+# Staging window
+tmux new-window -t "$s:" -n staging
+tmux send-keys -t "$s:staging" 'ssh-manager' C-m
+
+# Switch back to first window when done
+tmux select-window -t "$s:team1"

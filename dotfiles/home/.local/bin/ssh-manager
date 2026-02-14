@@ -1,0 +1,162 @@
+#!/bin/bash
+
+# Copyright 2025 Vishmay Karbotkar
+# Licensed under the Apache License, Version 2.0. See LICENSE file in the repository root.
+# https://vishcodes.com
+# https://github.com/vishmaycode/local-bin
+
+CONFIG_DIR="$HOME/.config/ssh-manager"
+CONFIG_FILE="$CONFIG_DIR/config"
+
+# Ensure config directory and file exist
+mkdir -p "$CONFIG_DIR"
+touch "$CONFIG_FILE"
+
+# Banner to display in fzf
+BANNER_HEADER=$'
+██╗   ██╗██╗███████╗██╗  ██╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗
+██║   ██║██║██╔════╝██║  ██║██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝
+██║   ██║██║███████╗███████║██║     ██║   ██║██║  ██║█████╗  ███████╗
+╚██╗ ██╔╝██║╚════██║██╔══██║██║     ██║   ██║██║  ██║██╔══╝  ╚════██║
+ ╚████╔╝ ██║███████║██║  ██║╚██████╗╚██████╔╝██████╔╝███████╗███████║
+  ╚═══╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚══════╝
+
+VishCodes - https://vishcodes.com
+GitHub    - https://github.com/vishmaycode/local-bin
+'
+
+# Clean up temporary files
+cleanup() {
+    [[ -f "$temp_list" ]] && rm -f "$temp_list"
+}
+trap cleanup EXIT
+
+# Check if fzf is installed
+if ! command -v fzf >/dev/null; then
+    echo "Error: 'fzf' is not installed. Please install it to use this tool."
+    exit 1
+fi
+
+# Function to connect to an SSH endpoint
+connect_endpoint() {
+    local endpoint=$(echo "$1" | cut -d'|' -f2)
+    local port=$(echo "$1" | cut -d'|' -f3)
+    local password=$(echo "$1" | cut -d'|' -f4)
+    echo "Connecting to $endpoint${port:+ on port $port}..."
+    if [ -n "$password" ]; then
+        if ! command -v sshpass >/dev/null; then
+            echo "Error: 'sshpass' is required for password authentication. Please install it or leave password blank."
+            return
+        fi
+        if [ -n "$port" ]; then
+            sshpass -p "$password" ssh -p "$port" -o StrictHostKeyChecking=accept-new "$endpoint"
+        else
+            sshpass -p "$password" ssh -o StrictHostKeyChecking=accept-new "$endpoint"
+        fi
+    else
+        if [ -n "$port" ]; then
+            ssh -p "$port" "$endpoint"
+        else
+            ssh "$endpoint"
+        fi
+    fi
+}
+
+# Function to add a new SSH endpoint
+add_endpoint() {
+    read -p "Enter username: " username
+    read -p "Enter domain: " domain
+    read -p "Enter port (leave blank for default 22): " port
+    read -p "Enter an alias for this connection: " alias
+    read -s -p "Enter password (leave blank to prompt on connect) (IMPORTANT - THIS IS NOT SECURE): " password
+    echo
+
+    if [[ -z "$username" || -z "$domain" || -z "$alias" ]]; then
+        echo "Username, domain, and alias are required."
+        return
+    fi
+
+    if [[ -n "$port" && ! "$port" =~ ^[0-9]+$ ]]; then
+        echo "Port must be a number."
+        return
+    fi
+
+    local endpoint="$username@$domain"
+
+    if grep -q "^$alias|" "$CONFIG_FILE" || grep -q "|$endpoint|" "$CONFIG_FILE"; then
+        echo "Alias or endpoint already exists!"
+        return
+    fi
+
+    echo "$alias|$endpoint|$port|$password" >> "$CONFIG_FILE"
+    echo "Endpoint added successfully!"
+
+    read -p "Do you want to connect now? (y/n): " connect_now
+    if [[ "$connect_now" =~ ^[Yy]$ ]]; then
+        connect_endpoint "$alias|$endpoint|$port|$password"
+    else
+        echo "You can connect later using the SSH manager."
+    fi
+}
+
+# Function to delete an SSH endpoint
+delete_endpoint() {
+    local selection
+    selection=$(fzf --header="$BANNER_HEADER" --prompt="Select an alias to delete: " < "$CONFIG_FILE")
+    if [ -z "$selection" ]; then
+        echo "No endpoint selected."
+        return
+    fi
+
+    local alias=$(echo "$selection" | cut -d'|' -f1)
+
+    # Use `^alias|` to match only the full alias at the beginning of line
+    if grep -q "^${alias}|" "$CONFIG_FILE"; then
+        sed -i.bak "/^${alias}|/d" "$CONFIG_FILE"
+        echo "Endpoint deleted: $alias"
+    else
+        echo "Failed to find and delete the endpoint."
+    fi
+}
+
+# Create a file with existing connections plus option to add/delete
+create_selection_list() {
+    local temp_file
+    temp_file=$(mktemp)
+
+    # Add connections from config file
+    if [ -s "$CONFIG_FILE" ]; then
+        while IFS='|' read -r alias endpoint port password; do
+            echo "$alias|$endpoint|${port:-22}|$password" >> "$temp_file"
+        done < "$CONFIG_FILE"
+    fi
+
+    # Add special options
+    echo "[+] Add new endpoint" >> "$temp_file"
+    echo "[-] Delete an endpoint" >> "$temp_file"
+
+    echo "$temp_file"
+}
+
+# Main logic
+main() {
+    temp_list=$(create_selection_list)
+    local selection
+    selection=$(fzf --header="$BANNER_HEADER" --prompt="Select a connection or action: " < "$temp_list")
+
+    if [ -z "$selection" ]; then
+        echo "No selection made."
+        exit 0
+    fi
+
+    if [ "$selection" = "[+] Add new endpoint" ]; then
+        add_endpoint
+    elif [ "$selection" = "[-] Delete an endpoint" ]; then
+        delete_endpoint
+    else
+        connect_endpoint "$selection"
+    fi
+}
+
+# Run the program
+main
