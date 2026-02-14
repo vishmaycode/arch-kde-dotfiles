@@ -16,6 +16,7 @@ konsole
 kate
 ark
 kdeconnect
+kvantum
 
 # Networking
 networkmanager
