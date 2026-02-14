@@ -43,6 +43,7 @@ lazygit
 zsh
 qemu-full
 ttf-jetbrains-mono-nerd
+rsync
 
 # Creative / Office
 gimp
