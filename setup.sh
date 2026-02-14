@@ -132,7 +132,7 @@ chown -R "$USER:$USER" "$HOME"
 
 # Apply Global Theme
 if command -v plasma-apply-lookandfeel &> /dev/null; then
-    plasma-apply-lookandfeel com.github.vinceliuice.WhiteSur --force
+    plasma-apply-lookandfeel -a com.github.vinceliuice.WhiteSur
 fi
 
 # Icon Theme
