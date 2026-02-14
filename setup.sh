@@ -122,4 +122,38 @@ echo "Installing user dotfiles..."
 # Copy home files
 rsync -a dotfiles/home/ "$HOME/"
 
+# -------------------------------------------------
+# KDE APPLY SETTINGS PROPERLY
+# -------------------------------------------------
+
+echo "Applying KDE theme and settings..."
+
+# Ensure correct ownership (important if script ever runs as root)
+chown -R "$USER:$USER" "$HOME"
+
+# Apply Global Theme (replace with your actual macOS theme ID)
+if command -v lookandfeeltool &> /dev/null; then
+    lookandfeeltool -a org.kde.breezedark.desktop || true
+fi
+
+# Apply Color Scheme (replace with your scheme name)
+if command -v plasma-apply-colorscheme &> /dev/null; then
+    plasma-apply-colorscheme BreezeDark || true
+fi
+
+# Apply Cursor Theme (replace with yours)
+if command -v plasma-apply-cursortheme &> /dev/null; then
+    plasma-apply-cursortheme Breeze || true
+fi
+
+# Apply Icon Theme (replace with yours)
+kwriteconfig6 --file kdeglobals --group Icons --key Theme breeze
+
+# Restart Plasma cleanly (only if session active)
+if pgrep plasmashell > /dev/null; then
+    kquitapp6 plasmashell
+    sleep 2
+    plasmashell --replace &
+fi
+
 echo "Done. Reboot recommended."
