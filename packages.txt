@@ -1,0 +1,58 @@
+# Core
+base
+base-devel
+linux-lts
+linux-firmware
+efibootmgr
+grub
+zram-generator
+
+# KDE Plasma 6 (Wayland)
+plasma-meta
+plasma-workspace
+sddm
+dolphin
+konsole
+kate
+ark
+kdeconnect
+
+# Networking
+networkmanager
+network-manager-applet
+iwd
+wireless_tools
+
+# Browsers
+firefox
+
+# Dev / Terminal
+git
+wget
+htop
+fastfetch
+tmux
+vim
+neovim
+lazygit
+zsh
+code
+
+# Creative / Office
+gimp
+gthumb
+inkscape
+libreoffice-fresh
+filezilla
+gnome-calculator
+
+# Utilities
+xdg-utils
+cmatrix
+
+# Containers
+docker
+
+# Flatpak support
+flatpak
+xdg-desktop-portal-kde
