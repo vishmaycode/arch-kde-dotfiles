@@ -1,7 +1,4 @@
-google-chrome
 postman-bin
-mailspring
-docker-desktop
 zen-browser-bin
 cursor-bin
 pdfarranger
