@@ -128,33 +128,30 @@ rsync -a dotfiles/home/ "$HOME/"
 
 echo "Applying WhiteSur KDE theme..."
 
-# Fix ownership just in case
 chown -R "$USER:$USER" "$HOME"
 
 # Apply Global Theme
-if command -v lookandfeeltool &> /dev/null; then
-    lookandfeeltool -a com.github.vinceliuice.WhiteSur || true
+if command -v plasma-apply-lookandfeel &> /dev/null; then
+    plasma-apply-lookandfeel com.github.vinceliuice.WhiteSur --force
 fi
 
-# Apply Color Scheme (WhiteSur Dark)
-if command -v plasma-apply-colorscheme &> /dev/null; then
-    plasma-apply-colorscheme WhiteSurDark || true
-fi
-
-# Apply Icon Theme
+# Icon Theme
 kwriteconfig6 --file kdeglobals --group Icons --key Theme WhiteSur-dark
 
-# Apply Cursor Theme
+# Cursor Theme
 kwriteconfig6 --file kcminputrc --group Mouse --key cursorTheme WhiteSur-cursors
 
-# Apply Window Decoration
+# Enable Kvantum
+kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle kvantum
+
+if command -v kvantummanager &> /dev/null; then
+    kvantummanager --set WhiteSur
+fi
+
+# Window Decoration (Aurorae)
+kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
 kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme WhiteSur-dark
 
-# Restart Plasma cleanly
-if pgrep plasmashell > /dev/null; then
-    kquitapp6 plasmashell
-    sleep 2
-    plasmashell --replace &
-fi
+echo "WhiteSur theme configured. Log out and log back in."
 
 echo "Done. Reboot recommended."
