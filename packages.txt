@@ -37,6 +37,7 @@ neovim
 lazygit
 zsh
 code
+qemu-full
 
 # Creative / Office
 gimp
