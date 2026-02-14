@@ -28,6 +28,7 @@ firefox
 
 # Dev / Terminal
 git
+lazygit
 wget
 htop
 fastfetch
@@ -36,7 +37,6 @@ vim
 neovim
 lazygit
 zsh
-code
 qemu-full
 
 # Creative / Office
