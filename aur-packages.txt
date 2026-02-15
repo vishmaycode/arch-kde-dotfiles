@@ -7,3 +7,6 @@ visual-studio-code-bin
 whitesur-kde-theme
 whitesur-icon-theme-git
 whitesur-cursor-theme-git
+plasma6-themes-layan-git
+layan-gtk-theme-git
+layan-cursor-theme-git
