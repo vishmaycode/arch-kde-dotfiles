@@ -123,7 +123,7 @@ echo "Installing user dotfiles..."
 rsync -a dotfiles/home/ "$HOME/"
 
 # -------------------------------------------------
-# KDE APPLY WHITESUR THEME
+# KDE APPLY LAYAN/WHITESUR THEME
 # -------------------------------------------------
 
 echo "Applying WhiteSur KDE theme..."
@@ -132,7 +132,7 @@ chown -R "$USER:$USER" "$HOME"
 
 # Apply Global Theme
 if command -v plasma-apply-lookandfeel &> /dev/null; then
-    plasma-apply-lookandfeel -a com.github.vinceliuice.WhiteSur
+    plasma-apply-lookandfeel -a com.github.vinceliuice.Layan
 fi
 
 # Icon Theme
@@ -145,14 +145,14 @@ kwriteconfig6 --file kcminputrc --group Mouse --key cursorTheme WhiteSur-cursors
 kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle kvantum
 
 if command -v kvantummanager &> /dev/null; then
-    kvantummanager --set WhiteSur
+    kvantummanager --set Layan
 fi
 
-# Window Decoration (Aurorae)
-kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
-kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme WhiteSur-dark
+# sddm theme as whitesur
+sudo mkdir -p /etc/sddm.conf.d
+echo -e "[Theme]\nCurrent=WhiteSur" | sudo tee /etc/sddm.conf.d/theme.conf > /dev/null
 
-echo "WhiteSur theme configured."
+echo "Layan/WhiteSur theme configured."
 
 echo "==================================================="
 echo "POST INSTALL PRECAUSIONS"
